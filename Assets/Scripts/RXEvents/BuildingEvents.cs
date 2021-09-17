@@ -22,7 +22,7 @@ public static class BuildingEvents
         public MiningBuilding Building;
     }
 
-    public class BecameEmpty : Signal
+    public class ExtractedResourcesChanged : Signal
     {
         public MiningBuilding Building;
     }
@@ -31,4 +31,8 @@ public static class BuildingEvents
     {
         public MiningBuilding Building;
     }
+
+    public class ShowGridRequest : Request {}
+
+    public class HideGridRequest : Request {}
 }

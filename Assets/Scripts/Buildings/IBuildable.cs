@@ -7,4 +7,6 @@ public interface IBuildable
     public string Label { get; }
     public float BuildDuration { get; }
     public List<GameResourceAmount> Price { get; }
+    public string Description { get; }
+    public Sprite Image { get; }
 }

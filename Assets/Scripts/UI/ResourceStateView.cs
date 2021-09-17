@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,12 +8,14 @@ using UnityEngine.UI;
 public class ResourceStateView : MonoBehaviour
 {
     [SerializeField] private Slider _slider;
-    [SerializeField] private ResourceAmountView _amountView;
+    [SerializeField] private TMP_Text _label;
+    [SerializeField] private Image _image;
 
     private GameResource _resource;
     public void Init(GameResource resource)
     {
         _resource = resource;
+        _image.sprite = resource.Icon;
         UpdateState();
 
         MessageBus
@@ -29,7 +32,7 @@ public class ResourceStateView : MonoBehaviour
     {
         var resourceAvailable = PlayerState.Instance.ResourcesAvailable.GetResourceCount(_resource);
         var resourceCapacity = PlayerState.Instance.ResourcesCapacity.GetResourceCount(_resource);
-        _amountView.Show(_resource.Icon, resourceAvailable);
+        _label.text = $"<color=white>{resourceAvailable}</color><size=80%>/{resourceCapacity}</size>";
         _slider.value = (float) resourceAvailable / resourceCapacity;
     }
 }

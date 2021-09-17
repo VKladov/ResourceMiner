@@ -11,4 +11,9 @@ public class StorageBuilding : Building
     {
         
     }
+
+    public override string GetDescription()
+    {
+        return $"Allows you to store {_capacity.Amount} more units of {_capacity.Resource.name}";
+    }
 }

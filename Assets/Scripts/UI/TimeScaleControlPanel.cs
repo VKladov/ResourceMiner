@@ -27,7 +27,7 @@ public class TimeScaleControlPanel : MonoBehaviour
             .AsObservable()
             .Subscribe(signal =>
             {
-                Time.timeScale = 2;
+                Time.timeScale = 5;
             })
             .AddTo(this);
         
@@ -36,7 +36,7 @@ public class TimeScaleControlPanel : MonoBehaviour
             .AsObservable()
             .Subscribe(signal =>
             {
-                Time.timeScale = 3;
+                Time.timeScale = 10;
             })
             .AddTo(this);
     }

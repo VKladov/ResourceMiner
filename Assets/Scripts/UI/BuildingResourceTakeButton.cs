@@ -17,7 +17,7 @@ public class BuildingResourceTakeButton : MonoBehaviour
     public void Init(MiningBuilding building, Camera mainCamera)
     {
         Building = building;
-        _amountView.Show(building.ExtractingResource.Resource.Icon, building.ExtractingResource.Amount);
+        _amountView.Show(building.ExtractedResource.Resource.Icon, building.ExtractedResource.Amount);
         _camera = mainCamera;
         Update();
     }

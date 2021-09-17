@@ -1,14 +1,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UniRx;
 using UnityEngine;
 
 public class GridVisualizer : MonoBehaviour
 {
     [SerializeField] private Grid _grid;
     [SerializeField] private GameObject _linePrefab;
-
-
+    
     public void Start()
     {
         var maxZ = _grid.GetWorldPosition(_grid.Size).z - _grid.CellSize * 0.5f;
@@ -36,5 +36,31 @@ public class GridVisualizer : MonoBehaviour
             line.transform.localScale = new Vector3(1, 1, sizeZ);
             line.transform.rotation = Quaternion.LookRotation(Vector3.right);
         }
+
+        MessageBus
+            .Receive<BuildingEvents.ShowGridRequest>()
+            .Subscribe(request =>
+            {
+                gameObject.SetActive(true);
+            })
+            .AddTo(this);
+
+        MessageBus
+            .Receive<BuildingEvents.ShowGridRequest>()
+            .Subscribe(request =>
+            {
+                gameObject.SetActive(true);
+            })
+            .AddTo(this);
+
+        MessageBus
+            .Receive<BuildingEvents.HideGridRequest>()
+            .Subscribe(request =>
+            {
+                gameObject.SetActive(false);
+            })
+            .AddTo(this);
+        
+        gameObject.SetActive(false);
     }
 }

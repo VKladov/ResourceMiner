@@ -11,6 +11,8 @@ public class BuildingSelectButton : MonoBehaviour
 {
     [SerializeField] private Button _button;
     [SerializeField] private TMP_Text _text;
+    [SerializeField] private Image _image;
+    [SerializeField] private TMP_Text _description;
     [SerializeField] private RectTransform _priceContainer;
     [SerializeField] private ResourceAmountView _amountViewPrefab;
 
@@ -34,6 +36,8 @@ public class BuildingSelectButton : MonoBehaviour
     {
         _data = building;
         _text.text = building.Label;
+        _image.sprite = building.Image;
+        _description.text = building.Description;
         
         foreach(Transform child in _priceContainer)
             Destroy(child.gameObject);

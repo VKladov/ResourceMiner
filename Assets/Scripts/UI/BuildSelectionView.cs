@@ -1,11 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
+using UniRx;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class BuildSelectionView : MonoBehaviour
 {
     [SerializeField] private RectTransform _container;
     [SerializeField] private BuildingSelectButton _buttonPrefab;
+    [SerializeField] private Button _closeButton;
 
     private void Awake()
     {
@@ -17,5 +20,14 @@ public class BuildSelectionView : MonoBehaviour
             var button = Instantiate(_buttonPrefab, _container);
             button.Show(buildingType);
         }
+
+        _closeButton
+            .onClick
+            .AsObservable()
+            .Subscribe(signal =>
+            {
+                gameObject.SetActive(false);
+            })
+            .AddTo(this);
     }
 }

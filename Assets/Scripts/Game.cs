@@ -19,6 +19,11 @@ public class Game : MonoBehaviour
     
     private void Awake()
     {
+        #if UNITY_EDITOR
+            QualitySettings.vSyncCount = 0;
+            Application.targetFrameRate = 60;
+        #endif
+
         _buildButton
             .onClick
             .AsObservable()
@@ -43,8 +48,12 @@ public class Game : MonoBehaviour
                 {
                     SpendResources(_buildingToPlace.Price.ToList());
                     _buildPositions.PlaceBuilding(request.Building, request.Cell);
-                    _buildingPlacer.enabled = false;
+                    _buildingPlacer.FinishPlacing();
+                    
                     request.Building.Build();
+                    
+                    new BuildingEvents.HideGridRequest().Publish();
+                    new CellSelectionView.HideCellHighlight().Publish();
                 }
             })
             .AddTo(this);
@@ -53,13 +62,11 @@ public class Game : MonoBehaviour
             .Receive<UIEvents.BuildingSelectButtonPressed>()
             .Subscribe(request =>
             {
-                if (CanPlayerBuyBuilding(request.Building))
-                {
-                    _buildingToPlace = request.Building;
-                    var building = _buildingsFactory.CreateBuilding(request.Building);
-                    _buildingPlacer.SetBuilding(building);
-                    _buildingPlacer.enabled = true;
-                }
+                if (!CanPlayerBuyBuilding(request.Building)) return;
+                _buildSelection.gameObject.SetActive(false);
+                _buildingToPlace = request.Building;
+                var building = _buildingsFactory.CreateBuilding(request.Building);
+                _buildingPlacer.StartPlacing(building);
             })
             .AddTo(this);
 
@@ -67,10 +74,9 @@ public class Game : MonoBehaviour
             .Receive<BuildingEvents.TakeResourcesRequest>()
             .Subscribe(request =>
             {
-                if (!CanStoreResources(request.Building.ExtractingResource)) return;
-                
-                AddResources(request.Building.ExtractingResource);
-                request.Building.Clear();
+                var resource = request.Building.ExtractingResource.Resource;
+                request.Building.TakeResource(GetAllowedCapacity(resource), out var amountTaken);
+                AddResources(resource, amountTaken);
             })
             .AddTo(this);
 
@@ -110,16 +116,19 @@ public class Game : MonoBehaviour
         }
     }
 
-    private static void AddResources(GameResourceAmount resourceAmount)
+    private static void AddResources(GameResource resource, int amount)
     {
-        var available = PlayerState.Instance.ResourcesAvailable.GetResourceCount(resourceAmount.Resource);
-        PlayerState.Instance.ResourcesAvailable.SetResourceCount(resourceAmount.Resource, available + resourceAmount.Amount);
+        if (amount == 0)
+            return;
+        
+        var available = PlayerState.Instance.ResourcesAvailable.GetResourceCount(resource);
+        PlayerState.Instance.ResourcesAvailable.SetResourceCount(resource, available + amount);
     }
 
-    private static bool CanStoreResources(GameResourceAmount resourceAmount)
+    private static int GetAllowedCapacity(GameResource resource)
     {
-        var capacity = PlayerState.Instance.ResourcesCapacity.GetResourceCount(resourceAmount.Resource);
-        var available = PlayerState.Instance.ResourcesAvailable.GetResourceCount(resourceAmount.Resource);
-        return available + resourceAmount.Amount <= capacity;
+        var capacity = PlayerState.Instance.ResourcesCapacity.GetResourceCount(resource);
+        var available = PlayerState.Instance.ResourcesAvailable.GetResourceCount(resource);
+        return capacity - available;
     }
 }

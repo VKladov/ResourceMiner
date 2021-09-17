@@ -8,13 +8,16 @@ using UnityEngine.Events;
 public abstract class Building : MonoBehaviour, IBuildable
 {
     [SerializeField] private string _label;
+    [SerializeField] private Sprite _image;
     [SerializeField] private float _buildDuration;
     [SerializeField] private List<GameResourceAmount> _price;
     
     public string Label => _label;
     public float BuildDuration => _buildDuration;
     public List<GameResourceAmount> Price => _price;
+    public Sprite Image => _image;
     public float Progress { get; protected set; }
+    public string Description => GetDescription();
 
     public async void Build()
     {
@@ -40,4 +43,5 @@ public abstract class Building : MonoBehaviour, IBuildable
     }
 
     public abstract void StartWork();
+    public abstract string GetDescription();
 }

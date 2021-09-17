@@ -48,15 +48,16 @@ public class BuildingButtonsSpawner : MonoBehaviour
             .Subscribe(signal =>
             {
                 RemoveIcon(signal.Building);
-                CreateButton(signal.Building);
             })
             .AddTo(this);
         
         MessageBus
-            .Receive<BuildingEvents.BecameEmpty>()
+            .Receive<BuildingEvents.ExtractedResourcesChanged>()
             .Subscribe(signal =>
             {
                 RemoveButton(signal.Building);
+                if (signal.Building.ExtractedResource.Amount > 0)
+                    CreateButton(signal.Building);
             })
             .AddTo(this);
     }

@@ -10,12 +10,24 @@ public class MiningBuilding : Building
     [SerializeField] private float _extractDuration = 5;
 
     public GameResourceAmount ExtractingResource => _extractingResource;
+    public GameResourceAmount ExtractedResource { get; private set; }
     public bool Full { get; private set; }
 
-    public void Clear()
+    public void TakeResource(int max, out int amountTaken)
     {
-        Full = false;
-        new BuildingEvents.BecameEmpty
+        if (ExtractedResource == null)
+        {
+            amountTaken = 0;
+            return;
+        }
+        
+        amountTaken = Mathf.Min(max, ExtractedResource.Amount);
+        ExtractedResource.Amount -= amountTaken;
+
+        if (ExtractedResource.Amount == 0)
+            Full = false;
+        
+        new BuildingEvents.ExtractedResourcesChanged()
         {
             Building = this
         }.Publish();
@@ -29,6 +41,11 @@ public class MiningBuilding : Building
             else
                 await ExtractResources();
         }
+    }
+
+    public override string GetDescription()
+    {
+        return $"Produces {_extractingResource.Amount} units of {_extractingResource.Resource.name} for {_extractDuration} seconds";
     }
 
     private async Task ExtractResources()
@@ -46,9 +63,15 @@ public class MiningBuilding : Building
             await Task.Yield();
         }
 
+        ExtractedResource = _extractingResource.Copy();
         Full = true;
         
         new BuildingEvents.FinishedExtraction
+        {
+            Building = this
+        }.Publish();
+        
+        new BuildingEvents.ExtractedResourcesChanged()
         {
             Building = this
         }.Publish();
